@@ -1,0 +1,31 @@
+1. ¿Cuál es la sentencia para instalar la librería que crea y gestiona ambientes virtuales?
+pip install virtualenv
+
+2. ¿Cuál es la sentencia para crear un ambiente virtual llamado 'venv'?
+python -m venv venv
+
+3. Para instalar una librería con pip y que se instale en el entorno virtual, es necesario:
+Crear y activar el entorno virtual
+
+4. Si hago doble clic en un archivo python que se creó con un entorno virtual, ¿Se ejecuta con las librerías instaladas en ese entorno?
+NO
+
+5. El entorno virtual creado usará la última versión disponible de python
+Falso
+
+6. ¿Cuál es la sentencia para desactivar un ambiente virtual llamado 'venv'?
+deactivate
+
+7. Para exportar una lista de las librerías usadas en el ambiente virtual llamado venv se utiliza:
+a. pip freeze > requirements.txt
+
+8. ¿Cuál sentencia se utiliza para instalar las librerías de un archivo requirements.txt?
+pip install -r requirements.txt
+
+9. ¿Cómo justificarías tener dos ambientes virtuales para un mismo proyecto?
+Para probar distintas versiones de librerías o separar entornos de desarrollo y producción.
+Microservicios con distintas librerias
+
+10. ¿Cuál es la sentencia para ver por consola las librerías instaladas en un ambiente virtual creado y activado?
+pip list
+pip freeze
