@@ -4,6 +4,7 @@ from typing import List
 from services.database import get_db
 from services.keyphrase_service import keyphrase_service
 from .base_router import BaseRouter
+from routes.user_routes import get_current_user, require_admin_user
 
 
 class KeyphraseRouter(BaseRouter):
@@ -21,7 +22,8 @@ class KeyphraseRouter(BaseRouter):
             methods=["GET"],
             response_model=List[str],
             summary="Extract key phrases from text",
-            description="Extract key phrases from text using Azure Cognitive Services"
+            description="Extract key phrases from text using Azure Cognitive Services",
+            dependencies=[Depends(get_current_user)]
         )
         
         # Extract and save key phrases for a character
@@ -31,7 +33,8 @@ class KeyphraseRouter(BaseRouter):
             methods=["POST"],
             response_model=List[str],
             summary="Extract and save key phrases for character",
-            description="Extract key phrases from text and save them for a character"
+            description="Extract key phrases from text and save them for a character",
+            dependencies=[Depends(require_admin_user)]
         )
         
         # Get key phrases for a character
@@ -41,7 +44,8 @@ class KeyphraseRouter(BaseRouter):
             methods=["GET"],
             response_model=List[str],
             summary="Get key phrases for character",
-            description="Get all key phrases for a specific character"
+            description="Get all key phrases for a specific character",
+            dependencies=[Depends(get_current_user)]
         )
     
     def extract_key_phrases(self, text: str = Query(..., description="Text to extract key phrases from")):

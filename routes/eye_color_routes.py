@@ -5,6 +5,7 @@ from services.database import get_db
 from services.eye_color_service import eye_color_service
 from schemas.eye_color import EyeColorCreate, EyeColorResponse
 from .base_router import BaseRouter
+from routes.user_routes import get_current_user, require_admin_user
 
 
 class EyeColorRouter(BaseRouter):
@@ -21,7 +22,8 @@ class EyeColorRouter(BaseRouter):
             methods=["GET"],
             response_model=List[EyeColorResponse],
             summary="Get all eye colors",
-            description="Retrieves a list of all available eye colors"
+            description="Retrieves a list of all available eye colors",
+            dependencies=[Depends(get_current_user)]
         )
         
         self.router.add_api_route(
@@ -30,7 +32,8 @@ class EyeColorRouter(BaseRouter):
             methods=["GET"],
             response_model=EyeColorResponse,
             summary="Get eye color by ID",
-            description="Retrieves a specific eye color by its ID"
+            description="Retrieves a specific eye color by its ID",
+            dependencies=[Depends(get_current_user)]
         )
         
         self.router.add_api_route(
@@ -39,7 +42,8 @@ class EyeColorRouter(BaseRouter):
             methods=["POST"],
             response_model=EyeColorResponse,
             summary="Add a new eye color",
-            description="Creates a new eye color with the provided details"
+            description="Creates a new eye color with the provided details",
+            dependencies=[Depends(require_admin_user)]
         )
         
         self.router.add_api_route(
@@ -48,7 +52,8 @@ class EyeColorRouter(BaseRouter):
             methods=["PUT"],
             response_model=EyeColorResponse,
             summary="Update an eye color",
-            description="Updates an existing eye color with the provided details"
+            description="Updates an existing eye color with the provided details",
+            dependencies=[Depends(require_admin_user)]
         )
         
         self.router.add_api_route(
@@ -56,7 +61,8 @@ class EyeColorRouter(BaseRouter):
             self.delete_eye_color,
             methods=["DELETE"],
             summary="Delete an eye color",
-            description="Deletes an eye color by its ID"
+            description="Deletes an eye color by its ID",
+            dependencies=[Depends(require_admin_user)]
         )
     
     def get_all_eye_colors(self, db: Session = Depends(get_db)):
