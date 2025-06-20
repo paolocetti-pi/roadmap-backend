@@ -285,4 +285,63 @@ Este proyecto utiliza GitHub Actions para automatizar la integración y el despl
 **Referencias útiles:**
 - [Docs Azure Web Apps Deploy Action](https://github.com/Azure/webapps-deploy)
 - [Más GitHub Actions para Azure](https://github.com/Azure/actions)
-- [Python, GitHub Actions y Azure App Service](https://aka.ms/python-webapps-actions) 
+- [Python, GitHub Actions y Azure App Service](https://aka.ms/python-webapps-actions)
+
+## 🔐 Autenticación y Autorización JWT
+
+### Registro y Login de Usuarios
+
+- **Registro:**
+  - Endpoint: `POST /users/register`
+  - Permite registrar un nuevo usuario enviando: nombre, apellido, email, contraseña y tipo de usuario (debe existir el tipo, por ejemplo: `ADMIN` o `USER`).
+  - Ejemplo de body:
+    ```json
+    {
+      "first_name": "Luke",
+      "last_name": "Skywalker",
+      "email": "luke@jedi.com",
+      "password": "123456",
+      "user_type_id": 1
+    }
+    ```
+
+- **Login:**
+  - Endpoint: `POST /users/login`
+  - Utiliza el estándar OAuth2PasswordRequestForm, por lo que el campo `username` debe contener el email del usuario.
+  - Ejemplo de body (x-www-form-urlencoded):
+    ```
+    username=luke@jedi.com
+    password=123456
+    ```
+  - Devuelve un JWT en el campo `access_token`.
+
+### Uso del JWT en Swagger
+
+1. Haz login en `/users/login` y copia el `access_token`.
+2. Haz clic en el botón **Authorize** de Swagger y pega el token como:
+   ```
+   Bearer <access_token>
+   ```
+3. Ahora puedes acceder a las rutas protegidas.
+
+### Protección de Rutas
+
+- **[GET]** Todas las rutas requieren un JWT válido (usuario autenticado).
+- **[POST], [PUT], [DELETE]** Solo pueden ser accedidas por usuarios con tipo `ADMIN`.
+- Si el token es inválido o expirado, se devuelve 401.
+- Si el usuario no es admin y accede a rutas restringidas, se devuelve 403.
+
+### Ejemplo de flujo de autenticación
+
+1. Registrar usuario (POST /users/register)
+2. Login (POST /users/login) → obtener access_token
+3. Usar el token en Swagger o en tus requests:
+   ```http
+   Authorization: Bearer <access_token>
+   ```
+
+### Notas importantes
+- El campo `username` en el login es el email del usuario.
+- Los tipos de usuario válidos deben existir en la tabla `user_types` (`ADMIN`, `USER`).
+- El token JWT contiene el id, email y tipo de usuario.
+- El backend utiliza PyJWT y passlib para la seguridad, siguiendo las recomendaciones oficiales de FastAPI. 

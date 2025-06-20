@@ -6,6 +6,7 @@ from services.database import get_db
 from services.character_service import character_service
 from schemas.character import CharacterCreate, CharacterResponse, CharacterDeleteResponse
 from .base_router import BaseRouter
+from routes.user_routes import get_current_user, require_admin_user
 
 
 class CharacterRouter(BaseRouter):
@@ -22,7 +23,8 @@ class CharacterRouter(BaseRouter):
             methods=["GET"],
             response_model=List[CharacterResponse],
             summary="Get all characters",
-            description="Retrieves a list of all characters with their details including eye color as string"
+            description="Retrieves a list of all characters with their details including eye color as string",
+            dependencies=[Depends(get_current_user)]
         )
         
         self.router.add_api_route(
@@ -31,7 +33,8 @@ class CharacterRouter(BaseRouter):
             methods=["GET"],
             response_model=List[CharacterResponse],
             summary="Get characters by name",
-            description="Retrieves all characters that match the given name"
+            description="Retrieves all characters that match the given name",
+            dependencies=[Depends(get_current_user)]
         )
         
         self.router.add_api_route(
@@ -40,7 +43,8 @@ class CharacterRouter(BaseRouter):
             methods=["POST"],
             response_model=CharacterResponse,
             summary="Add a new character",
-            description="Creates a new character with the provided details"
+            description="Creates a new character with the provided details",
+            dependencies=[Depends(require_admin_user)]
         )
         
         self.router.add_api_route(
@@ -49,7 +53,8 @@ class CharacterRouter(BaseRouter):
             methods=["DELETE"],
             response_model=CharacterDeleteResponse,
             summary="Delete a character",
-            description="Deletes a character by their ID"
+            description="Deletes a character by their ID",
+            dependencies=[Depends(require_admin_user)]
         )
         
         self.router.add_api_route(
@@ -58,7 +63,8 @@ class CharacterRouter(BaseRouter):
             methods=["PUT"],
             response_model=CharacterResponse,
             summary="Update a character",
-            description="Updates an existing character with the provided details"
+            description="Updates an existing character with the provided details",
+            dependencies=[Depends(require_admin_user)]
         )
         
         self.router.add_api_route(
@@ -66,7 +72,8 @@ class CharacterRouter(BaseRouter):
             self.get_character_with_phrases,
             methods=["GET"],
             summary="Get character with phrases",
-            description="Retrieves a character with all their key phrases"
+            description="Retrieves a character with all their key phrases",
+            dependencies=[Depends(get_current_user)]
         )
     
     def get_all_characters(self, db: Session = Depends(get_db)):
