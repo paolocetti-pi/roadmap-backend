@@ -3,6 +3,8 @@ from sqlalchemy import text
 from routes.character_routes import character_router
 from routes.eye_color_routes import eye_color_router
 from routes.keyphrase_routes import keyphrase_router
+from routes.user_routes import router as user_router
+from routes.sso_routes import router as sso_router
 from services.database import database_service
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,6 +39,8 @@ class StarWarsAPI:
         self.app.include_router(character_router.get_router())
         self.app.include_router(eye_color_router.get_router())
         self.app.include_router(keyphrase_router.get_router())
+        self.app.include_router(user_router)
+        self.app.include_router(sso_router)
         
         # Root endpoint
         @self.app.get("/")
