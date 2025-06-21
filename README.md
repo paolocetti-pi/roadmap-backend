@@ -1,167 +1,167 @@
-# Star Wars Characters API - OOP Refactoring (Simplified)
+# API de Personajes de Star Wars - Refactorización OOP (Simplificada)
 
-This project demonstrates the implementation of Object-Oriented Programming (OOP) principles in a FastAPI application for managing Star Wars characters. The code has been refactored from a functional approach to a simplified OOP architecture that's easy to understand and maintain.
+Este proyecto demuestra la implementación de principios de Programación Orientada a Objetos (OOP) en una aplicación FastAPI para gestionar personajes de Star Wars. El código ha sido refactorizado de un enfoque funcional a una arquitectura OOP simplificada, fácil de entender y mantener.
 
-## 🏗️ Architecture Overview
+## 🏗️ Resumen de la Arquitectura
 
-The application follows a layered architecture with clear separation of concerns:
+La aplicación sigue una arquitectura por capas con clara separación de responsabilidades:
 
 ```
-├── models/          # Data models with inheritance
-├── services/        # Business logic with base classes
-├── routes/          # API endpoints with router classes
-├── schemas/         # Pydantic models for validation
-└── app.py          # Main application class
+├── models/          # Modelos de datos con herencia
+├── services/        # Lógica de negocio con clases base
+├── routes/          # Endpoints de la API con clases router
+├── schemas/         # Modelos Pydantic para validación
+└── app.py           # Clase principal de la aplicación
 ```
 
-## 🎯 OOP Principles Implemented (Simplified)
+## 🎯 Principios OOP Implementados (Simplificado)
 
-### 1. **Encapsulation**
-- Data validation within classes
-- Controlled access to object state
-- Business logic encapsulated in services
+### 1. **Encapsulamiento**
+- Validación de datos dentro de las clases
+- Acceso controlado al estado de los objetos
+- Lógica de negocio encapsulada en servicios
 
-### 2. **Inheritance**
-- `BaseModel` class for all database models
-- `BaseService` class for common CRUD operations
-- `BaseRouter` class for common routing functionality
+### 2. **Herencia**
+- Clase `BaseModel` para todos los modelos de base de datos
+- Clase `BaseService` para operaciones CRUD comunes
+- Clase `BaseRouter` para funcionalidad común de rutas
 
-### 3. **Polymorphism**
-- Services that work with different model types
-- Methods that can be overridden by subclasses
-- Common interfaces through base classes
+### 3. **Polimorfismo**
+- Servicios que funcionan con diferentes tipos de modelos
+- Métodos que pueden ser sobrescritos por subclases
+- Interfaces comunes a través de clases base
 
-### 4. **Abstraction**
-- Base classes defining common functionality
-- Hidden implementation details
-- Clean public interfaces
+### 4. **Abstracción**
+- Clases base que definen funcionalidad común
+- Detalles de implementación ocultos
+- Interfaces públicas limpias
 
-## 📁 Project Structure
+## 📁 Estructura del Proyecto
 
-### Models (`models/`)
+### Modelos (`models/`)
 
-#### `BaseModel` (Base Class)
+#### `BaseModel` (Clase Base)
 ```python
 class BaseModel(Base):
-    """Base model class with common functionality"""
+    """Clase base de modelo con funcionalidad común"""
     __abstract__ = True
     
     id = Column(Integer, primary_key=True, index=True)
     
     def to_dict(self) -> dict:
-        """Convert model instance to dictionary"""
+        """Convierte la instancia del modelo a diccionario"""
         return {
             "id": self.id
         }
     
     @classmethod
     def from_dict(cls, data: dict):
-        """Create model instance from dictionary"""
+        """Crea una instancia del modelo desde un diccionario"""
         return cls()
 ```
 
-#### Concrete Model Classes
-- `Character`: Inherits from `BaseModel`, represents Star Wars characters
-- `EyeColor`: Inherits from `BaseModel`, represents eye colors
-- `KeyPhrase`: Inherits from `BaseModel`, represents character phrases
+#### Clases de Modelo Concretas
+- `Character`: Hereda de `BaseModel`, representa personajes de Star Wars
+- `EyeColor`: Hereda de `BaseModel`, representa colores de ojos
+- `KeyPhrase`: Hereda de `BaseModel`, representa frases de personajes
 
-### Services (`services/`)
+### Servicios (`services/`)
 
-#### `BaseService` (Base Class)
+#### `BaseService` (Clase Base)
 ```python
 class BaseService:
-    """Base service class with common CRUD operations"""
+    """Clase base de servicio con operaciones CRUD comunes"""
     
     def __init__(self, model_class):
         self.model_class = model_class
     
     def get_all(self, db: Session) -> List[Dict[str, Any]]:
-        """Get all records from the database"""
+        """Obtiene todos los registros de la base de datos"""
         records = db.query(self.model_class).all()
         return [record.to_dict() for record in records]
     
     def create(self, db: Session, data: dict) -> Dict[str, Any]:
-        """Create a new record"""
+        """Crea un nuevo registro"""
         record = self.model_class.from_dict(data)
         db.add(record)
         db.commit()
         return record.to_dict()
     
     def validate_data(self, data: dict) -> bool:
-        """Validate data - to be overridden by subclasses"""
+        """Valida datos - para ser sobrescrito por subclases"""
         return True
 ```
 
-#### Concrete Service Classes
-- `CharacterService`: Manages character operations
-- `EyeColorService`: Manages eye color operations
-- `KeyphraseService`: Manages key phrase operations
-- `DatabaseService`: Manages database connections
+#### Clases de Servicio Concretas
+- `CharacterService`: Gestiona operaciones de personajes
+- `EyeColorService`: Gestiona operaciones de colores de ojos
+- `KeyphraseService`: Gestiona operaciones de frases clave
+- `DatabaseService`: Gestiona conexiones a la base de datos
 
-### Routes (`routes/`)
+### Rutas (`routes/`)
 
-#### `BaseRouter` (Base Class)
+#### `BaseRouter` (Clase Base)
 ```python
 class BaseRouter:
-    """Base router class with common functionality"""
+    """Clase base de router con funcionalidad común"""
     
     def __init__(self, prefix: str, tags: List[str]):
         self.router = APIRouter(prefix=prefix, tags=tags)
         self.setup_routes()
     
     def setup_routes(self):
-        """Setup all routes - to be overridden by subclasses"""
+        """Configura todas las rutas - para ser sobrescrito por subclases"""
         pass
     
     def handle_exception(self, e: Exception) -> HTTPException:
-        """Handle exceptions and return appropriate HTTP responses"""
+        """Maneja excepciones y retorna respuestas HTTP apropiadas"""
         if isinstance(e, HTTPException):
             return e
         else:
             return HTTPException(status_code=500, detail=str(e))
 ```
 
-#### Concrete Router Classes
-- `CharacterRouter`: Handles character endpoints
-- `EyeColorRouter`: Handles eye color endpoints
-- `KeyphraseRouter`: Handles key phrase endpoints
+#### Clases Router Concretas
+- `CharacterRouter`: Maneja endpoints de personajes
+- `EyeColorRouter`: Maneja endpoints de colores de ojos
+- `KeyphraseRouter`: Maneja endpoints de frases clave
 
-### Schemas (`schemas/`)
-- Pydantic models for request/response validation
-- Proper field validation with constraints
-- Clear separation between create, update, and response schemas
+### Esquemas (`schemas/`)
+- Modelos Pydantic para validación de requests/responses
+- Validación de campos con restricciones
+- Separación clara entre esquemas de creación, actualización y respuesta
 
-## 🚀 Key Features
+## 🚀 Funcionalidades Clave
 
-### 1. **Simple CRUD Operations**
-All services inherit from `BaseService` which provides:
-- `get_all()`: Retrieve all records
-- `get_by_id()`: Retrieve by ID
-- `create()`: Create new records
-- `update()`: Update existing records
-- `delete()`: Delete records
+### 1. **Operaciones CRUD Simples**
+Todos los servicios heredan de `BaseService` que provee:
+- `get_all()`: Obtener todos los registros
+- `get_by_id()`: Obtener por ID
+- `create()`: Crear nuevos registros
+- `update()`: Actualizar registros existentes
+- `delete()`: Eliminar registros
 
-### 2. **Data Validation**
-- Model-level validation through `to_dict()` and `from_dict()` methods
-- Service-level validation with specific business rules
-- Schema-level validation with Pydantic
+### 2. **Validación de Datos**
+- Validación a nivel de modelo con `to_dict()` y `from_dict()`
+- Validación a nivel de servicio con reglas de negocio específicas
+- Validación a nivel de esquema con Pydantic
 
-### 3. **Error Handling**
-- Centralized exception handling in base classes
-- Proper HTTP status codes
-- Detailed error messages
+### 3. **Manejo de Errores**
+- Manejo centralizado de excepciones en clases base
+- Códigos de estado HTTP apropiados
+- Mensajes de error detallados
 
-### 4. **Database Management**
-- Connection pooling
-- Transaction management
+### 4. **Gestión de Base de Datos**
+- Pooling de conexiones
+- Manejo de transacciones
 - Health checks
-- Automatic cleanup
+- Limpieza automática
 
-## 🔧 Usage Examples
+## 🔧 Ejemplos de Uso
 
-### Creating a Character
+### Crear un Personaje
 ```python
-# Service level
+# A nivel de servicio
 character_service = CharacterService()
 character_data = {
     "name": "Luke Skywalker",
@@ -174,7 +174,7 @@ character_data = {
 character = character_service.create_character(db, character_data)
 ```
 
-### Adding Routes
+### Agregar Rutas
 ```python
 class CustomRouter(BaseRouter):
     def setup_routes(self):
@@ -188,58 +188,58 @@ class CustomRouter(BaseRouter):
         return {"message": "Custom endpoint"}
 ```
 
-## 🧪 Testing the API
+## 🧪 Pruebas de la API
 
-### Start the Application
+### Iniciar la Aplicación
 ```bash
 python app.py
 ```
 
-### Available Endpoints
+### Endpoints Disponibles
 
-#### Characters
-- `GET /character/getAll` - Get all characters
-- `GET /character/get/{name}` - Get characters by name
-- `POST /character/add` - Create a new character
-- `PUT /character/update/{id}` - Update a character
-- `DELETE /character/delete/{id}` - Delete a character
-- `GET /character/{id}/phrases` - Get character with phrases
+#### Personajes
+- `GET /character/getAll` - Obtener todos los personajes
+- `GET /character/get/{name}` - Obtener personajes por nombre
+- `POST /character/add` - Crear un nuevo personaje
+- `PUT /character/update/{id}` - Actualizar un personaje
+- `DELETE /character/delete/{id}` - Eliminar un personaje
+- `GET /character/{id}/phrases` - Obtener personaje con frases
 
-#### Eye Colors
-- `GET /eye-color/getAll` - Get all eye colors
-- `GET /eye-color/get/{id}` - Get eye color by ID
-- `POST /eye-color/add` - Create a new eye color
-- `PUT /eye-color/update/{id}` - Update an eye color
-- `DELETE /eye-color/delete/{id}` - Delete an eye color
+#### Colores de Ojos
+- `GET /eye-color/getAll` - Obtener todos los colores de ojos
+- `GET /eye-color/get/{id}` - Obtener color de ojos por ID
+- `POST /eye-color/add` - Crear un nuevo color de ojos
+- `PUT /eye-color/update/{id}` - Actualizar un color de ojos
+- `DELETE /eye-color/delete/{id}` - Eliminar un color de ojos
 
-#### Key Phrases
-- `GET /keyphrases?text=...` - Extract key phrases from text using Azure
-- `POST /keyphrases/{character_id}` - Extract and save key phrases for a character
-- `GET /keyphrases/{character_id}` - Get key phrases for a specific character
+#### Frases Clave
+- `GET /keyphrases?text=...` - Extraer frases clave usando Azure
+- `POST /keyphrases/{character_id}` - Extraer y guardar frases clave para un personaje
+- `GET /keyphrases/{character_id}` - Obtener frases clave de un personaje específico
 
 ### Health Check
-- `GET /health` - Check API and database health
+- `GET /health` - Verificar salud de la API y la base de datos
 
-## 📊 Benefits of Simplified OOP Refactoring
+## 📊 Beneficios del Refactor OOP Simplificado
 
-1. **Code Reusability**: Common functionality in base classes
-2. **Maintainability**: Clear separation of concerns
-3. **Extensibility**: Easy to add new models, services, and routes
-4. **Consistency**: Standardized patterns across the application
-5. **Testing**: Easier to test individual components
-6. **Documentation**: Self-documenting code structure
-7. **Accessibility**: Easy to understand and modify
+1. **Reutilización de Código**: Funcionalidad común en clases base
+2. **Mantenibilidad**: Separación clara de responsabilidades
+3. **Extensibilidad**: Fácil de agregar nuevos modelos, servicios y rutas
+4. **Consistencia**: Patrones estandarizados en toda la aplicación
+5. **Testing**: Más fácil de testear componentes individuales
+6. **Documentación**: Estructura de código auto-documentada
+7. **Accesibilidad**: Fácil de entender y modificar
 
-## 🔄 What Was Simplified
+## 🔄 Qué se Simplificó
 
-The refactoring removed complex features to make the code more accessible:
+El refactor eliminó características complejas para hacer el código más accesible:
 
-1. **Removed ABC (Abstract Base Classes)**: No more `@abstractmethod` decorators
-2. **Removed Generic Types**: No more `Generic[T]` or `TypeVar('T')`
-3. **Simplified Inheritance**: Regular inheritance instead of abstract classes
-4. **Kept Core OOP Principles**: Inheritance, encapsulation, polymorphism, and abstraction
+1. **Sin ABC (Clases Abstractas)**: No más decoradores `@abstractmethod`
+2. **Sin Tipos Genéricos**: No más `Generic[T]` o `TypeVar('T')`
+3. **Herencia Simplificada**: Herencia regular en vez de clases abstractas
+4. **Principios OOP Clave**: Herencia, encapsulamiento, polimorfismo y abstracción
 
-## 🛠️ Dependencies
+## 🛠️ Dependencias
 
 - FastAPI
 - SQLAlchemy
@@ -247,26 +247,26 @@ The refactoring removed complex features to make the code more accessible:
 - Python-dotenv
 - Uvicorn
 
-## 📝 Environment Variables
+## 📝 Variables de Entorno
 
-Create a `.env` file with:
+Crea un archivo `.env` con:
 ```
 DATABASE_URL=sqlite:///./star_wars.db
-AZURE_LANGUAGE_ENDPOINT=your_azure_endpoint
-AZURE_LANGUAGE_KEY=your_azure_key
+AZURE_LANGUAGE_ENDPOINT=tu_endpoint_azure
+AZURE_LANGUAGE_KEY=tu_clave_azure
 ```
 
-## 🎯 Why This Approach?
+## 🎯 ¿Por qué este enfoque?
 
-This simplified OOP approach provides:
+Este enfoque OOP simplificado provee:
 
-- **Easier Learning**: No complex type theory or abstract concepts
-- **Better Maintainability**: Straightforward inheritance and method overriding
-- **Faster Development**: Less boilerplate code
-- **Team-Friendly**: Accessible to developers of all skill levels
-- **Still OOP**: Maintains all core OOP principles without complexity
+- **Aprendizaje más fácil**: Sin teoría de tipos compleja ni conceptos abstractos
+- **Mejor mantenibilidad**: Herencia y sobreescritura de métodos directa
+- **Desarrollo más rápido**: Menos código repetitivo
+- **Apto para equipos**: Accesible para desarrolladores de todos los niveles
+- **Sigue siendo OOP**: Mantiene todos los principios OOP sin complejidad
 
-The refactored codebase demonstrates how OOP principles can be effectively applied to create a more maintainable, extensible, and robust API application without unnecessary complexity.
+El código refactorizado demuestra cómo los principios OOP pueden aplicarse efectivamente para crear una API más mantenible, extensible y robusta sin complejidad innecesaria.
 
 ## CI/CD con GitHub Actions y Azure Web App
 
@@ -285,4 +285,190 @@ Este proyecto utiliza GitHub Actions para automatizar la integración y el despl
 **Referencias útiles:**
 - [Docs Azure Web Apps Deploy Action](https://github.com/Azure/webapps-deploy)
 - [Más GitHub Actions para Azure](https://github.com/Azure/actions)
-- [Python, GitHub Actions y Azure App Service](https://aka.ms/python-webapps-actions) 
+- [Python, GitHub Actions y Azure App Service](https://aka.ms/python-webapps-actions)
+
+## 🔐 Autenticación y Autorización JWT
+
+### Registro y Login de Usuarios
+
+- **Registro:**
+  - Endpoint: `POST /users/register`
+  - Permite registrar un nuevo usuario enviando: nombre, apellido, email, contraseña y tipo de usuario (debe existir el tipo, por ejemplo: `ADMIN` o `USER`).
+  - Ejemplo de body:
+    ```json
+    {
+      "first_name": "Luke",
+      "last_name": "Skywalker",
+      "email": "luke@jedi.com",
+      "password": "123456",
+      "user_type_id": 1
+    }
+    ```
+
+- **Login:**
+  - Endpoint: `POST /users/login`
+  - Utiliza el estándar OAuth2PasswordRequestForm, por lo que el campo `username` debe contener el email del usuario.
+  - Ejemplo de body (x-www-form-urlencoded):
+    ```
+    username=luke@jedi.com
+    password=123456
+    ```
+  - Devuelve un JWT en el campo `access_token`.
+
+### Uso del JWT en Swagger
+
+1. Haz login en `/users/login` y copia el `access_token`.
+2. Haz clic en el botón **Authorize** de Swagger y pega el token como:
+   ```
+   Bearer <access_token>
+   ```
+3. Ahora puedes acceder a las rutas protegidas.
+
+### Protección de Rutas
+
+- **[GET]** Todas las rutas requieren un JWT válido (usuario autenticado).
+- **[POST], [PUT], [DELETE]** Solo pueden ser accedidas por usuarios con tipo `ADMIN`.
+- Si el token es inválido o expirado, se devuelve 401.
+- Si el usuario no es admin y accede a rutas restringidas, se devuelve 403.
+
+### Ejemplo de flujo de autenticación
+
+1. Registrar usuario (POST /users/register)
+2. Login (POST /users/login) → obtener access_token
+3. Usar el token en Swagger o en tus requests:
+   ```http
+   Authorization: Bearer <access_token>
+   ```
+
+### Notas importantes
+- El campo `username` en el login es el email del usuario.
+- Los tipos de usuario válidos deben existir en la tabla `user_types` (`ADMIN`, `USER`).
+- El token JWT contiene el id, email y tipo de usuario.
+- El backend utiliza PyJWT y passlib para la seguridad, siguiendo las recomendaciones oficiales de FastAPI.
+
+---
+
+## 🔑 Single Sign-On (SSO) con Google y Microsoft
+
+### Prerrequisitos
+- Tener una cuenta en Google Cloud Platform y en Azure Portal (Microsoft Entra ID).
+- Registrar tu aplicación en ambos proveedores para obtener los CLIENT_ID y CLIENT_SECRET.
+
+### Variables de entorno necesarias
+Agrega a tu `.env`:
+```
+GOOGLE_CLIENT_ID=tu_client_id_google
+GOOGLE_CLIENT_SECRET=tu_client_secret_google
+GOOGLE_REDIRECT_URI=http://localhost:8000/sso/auth/google/callback
+MICROSOFT_CLIENT_ID=tu_client_id_microsoft
+MICROSOFT_CLIENT_SECRET=tu_client_secret_microsoft
+MICROSOFT_REDIRECT_URI=http://localhost:8000/sso/auth/microsoft/callback
+MICROSOFT_TENANT_ID=common  # O déjalo vacío para aceptar cualquier cuenta
+```
+
+### Configuración en Google Cloud Platform
+1. Ve a [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+2. Crea un nuevo OAuth 2.0 Client ID.
+3. Agrega el URI de redirección: `http://localhost:8000/sso/auth/google/callback`.
+4. Copia el CLIENT_ID y CLIENT_SECRET y colócalos en tu `.env`.
+
+### Configuración en Azure Portal (Microsoft Entra ID)
+1. Ve a [Azure Portal](https://portal.azure.com) → Azure Active Directory → Registros de aplicaciones.
+2. Registra una nueva aplicación.
+3. En "Tipos de cuenta admitidos" selecciona:
+   - **Cuentas en cualquier directorio organizativo y cuentas personales de Microsoft (por ejemplo, Skype, Xbox)**
+4. Agrega el URI de redirección: `http://localhost:8000/sso/auth/microsoft/callback`.
+5. Copia el CLIENT_ID y CLIENT_SECRET y colócalos en tu `.env`.
+6. Si quieres aceptar cualquier cuenta, pon `MICROSOFT_TENANT_ID=common` o deja la variable vacía.
+
+#### ⚠️ Problema común con Microsoft
+Si ves el error:
+```
+The request is not valid for the application's 'userAudience' configuration. In order to use /common/ endpoint, the application must not be configured with 'Consumer' as the user audience. The userAudience should be configured with 'All' to use /common/ endpoint.
+```
+Debes cambiar la opción de "Tipos de cuenta admitidos" a **All** (ver paso 3 arriba).
+
+### Endpoints SSO disponibles
+- `GET /sso/login/google` → Redirige a Google para autenticación
+- `GET /sso/auth/google/callback` → Callback de Google (no la llames manualmente)
+- `GET /sso/login/microsoft` → Redirige a Microsoft para autenticación
+- `GET /sso/auth/microsoft/callback` → Callback de Microsoft (no la llames manualmente)
+
+### Flujo de autenticación SSO
+1. El usuario accede a `/sso/login/google` o `/sso/login/microsoft`.
+2. Se redirige al proveedor para autorizar la app.
+3. El proveedor redirige a tu backend con un código de autorización.
+4. El backend intercambia el código por un token y obtiene la información del usuario.
+5. Si el usuario ya existe, se le genera un JWT; si no, se registra automáticamente.
+
+### Notas adicionales
+- El campo `user_type_id` para usuarios SSO se asigna por defecto a `1` (ajusta según tu lógica).
+- El backend maneja la creación y login de usuarios SSO de forma transparente.
+- Puedes usar el JWT devuelto para autenticarte en las rutas protegidas igual que con el login tradicional.
+
+## 🐳 Dockerización y Despliegue
+
+### 1. **Requisitos previos**
+- Tener instalado [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/).
+
+---
+
+### 2. **Construcción y ejecución con Docker Compose**
+
+```bash
+docker-compose up --build
+```
+
+- Esto levantará:
+  - La API FastAPI en [http://localhost:8000/](http://localhost:8000/)
+  - MySQL en el puerto 3306 (solo accesible internamente)
+  - phpMyAdmin en [http://localhost:8080/](http://localhost:8080/) para gestionar la base de datos visualmente
+
+---
+
+### 3. **Acceso a phpMyAdmin**
+
+- URL: [http://localhost:8080/](http://localhost:8080/)
+- Usuario: `myuser`
+- Contraseña: `mypassword`
+- Servidor: `db`
+
+---
+
+### 4. **Persistencia y logs**
+
+- **Datos de la base de datos**: Se almacenan en el volumen `mysql_data` y persisten aunque detengas los contenedores.
+- **Logs de la API**: Se almacenan en `./logs/api/app.log` (en tu máquina local).
+- **Logs de MySQL**: Se almacenan en `./logs/mysql/` (en tu máquina local).
+
+---
+
+### 5. **Variables de entorno**
+
+Puedes definir variables de entorno en un archivo `.env` en la raíz del proyecto y Docker Compose las cargará automáticamente.
+
+---
+
+### 6. **Red interna automática**
+
+Docker Compose crea una red interna para que los servicios se comuniquen usando el nombre del servicio como hostname (por ejemplo, la API se conecta a la base de datos usando `db` como host).
+
+---
+
+### 7. **Comandos útiles**
+
+- **Levantar en segundo plano:**  
+  `docker-compose up -d --build`
+- **Ver logs de todos los servicios:**  
+  `docker-compose logs -f`
+- **Detener y eliminar contenedores:**  
+  `docker-compose down`
+- **Reconstruir solo la API:**  
+  `docker-compose build api`
+
+---
+
+### 8. **Notas adicionales**
+
+- Si quieres habilitar logs generales de MySQL, puedes agregar un archivo `my.cnf` personalizado.
+- La carpeta `logs/` debe existir o será creada automáticamente por la app/API. 

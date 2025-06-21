@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, List, Any, Union
+from models.eye_color import EyeColor
 
 
 class CharacterBase(BaseModel):
@@ -25,8 +26,15 @@ class CharacterUpdate(BaseModel):
 
 
 class CharacterResponse(CharacterBase):
-    id: int
+    id: Union[int, str]
     eye_color: Optional[str] = None
+
+    @field_validator('eye_color', mode='before')
+    @classmethod
+    def validate_eye_color(cls, v: Any) -> Optional[str]:
+        if isinstance(v, EyeColor):
+            return v.color
+        return v
 
     class Config:
         from_attributes = True
