@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api:
+    build: .
+    container_name: api
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./logs/api:/app/logs/api
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - DATABASE_URL=mysql+pymysql://myuser:mypassword@mysql:3306/mydatabase
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_EXPIRATION_SECONDS=60
+
+volumes:
+  mysql_data:
+  redis_data: 
