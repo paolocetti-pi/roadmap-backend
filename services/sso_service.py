@@ -108,8 +108,10 @@ class SSOService:
         if user:
             # Usuario ya existe, generar token
             logging.info(f"User {email} already exists. Generating token.")
-            token = user_service.create_access_token({"user_id": user.id, "user_type": user.user_type.name})
-            return user.to_dict(), token
+            user_dict = user.to_dict()  # Accede a user_type.name dentro del contexto async
+            user_type_name = user.user_type.name if user.user_type else None
+            token = user_service.create_access_token({"user_id": user.id, "user_type": user_type_name})
+            return user_dict, token
         # Si no existe, crear usuario (asignar un user_type_id por defecto, ej: 1)
         logging.info(f"User {email} not found. Creating new user.")
         user_in = UserCreateSchema(
@@ -120,6 +122,8 @@ class SSOService:
             user_type_id=1  # Ajustar según lógica de tu app
         )
         user = await user_service.create_user(db, user_in)
-        token = user_service.create_access_token({"user_id": user.id, "user_type": user.user_type.name})
+        user_dict = user.to_dict()  # Accede a user_type.name dentro del contexto async
+        user_type_name = user.user_type.name if user.user_type else None
+        token = user_service.create_access_token({"user_id": user.id, "user_type": user_type_name})
         logging.info(f"New user {email} created and token generated.")
-        return user.to_dict(), token 
+        return user_dict, token 
